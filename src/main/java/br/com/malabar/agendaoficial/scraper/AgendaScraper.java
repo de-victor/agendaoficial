@@ -12,10 +12,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import br.com.malabar.agendaoficial.agendaenum.TipoCompromissoEnum;
 import br.com.malabar.agendaoficial.entity.Compromisso;
+import br.com.malabar.agendaoficial.util.DateUtil;
 import lombok.extern.java.Log;
 
 @Log
@@ -30,27 +32,31 @@ public class AgendaScraper {
 	private final String horaFim = "compromisso-fim";
 	private final String viagem = "Partida de";
 	
+	@Autowired
+	private DateUtil dateUtil;
 	
 	
-	public List<Compromisso> scrapAgenda(){
+	
+	public List<Compromisso> scrapAgenda(String data){
 		List<Compromisso> lista = new ArrayList<Compromisso>();
 		
 		try {
-			log.info("Processando URL: "+url+buildDateUrl());
-			Document doc = Jsoup.connect(url+buildDateUrl()).get();
+			log.info("Processando URL: "+url+data);
+			Document doc = Jsoup.connect(url+data).get();
 			
 			Elements linhasCompromisso = doc.getElementsByClass(linha);
 			
 			if(!linhasCompromisso.isEmpty()) {
 				
 				for(Element linhaCompromisso : linhasCompromisso) {
-					Compromisso compromisso = new Compromisso(linhaCompromisso.getElementsByClass(compromissoLocal).text(), 
-															  linhaCompromisso.getElementsByClass(compromissoTitulo).text(), 
-															  linhaCompromisso.getElementsByClass(horaInicio).text(), 
-															  linhaCompromisso.getElementsByClass(horaFim).text(),
-															  url+buildDateUrl());
+					Compromisso compromisso = new Compromisso(linhaCompromisso.getElementsByClass(compromissoLocal).text().trim().replace(";", " "), 
+															  linhaCompromisso.getElementsByClass(compromissoTitulo).text().trim().replace(";", " "), 
+															  linhaCompromisso.getElementsByClass(horaInicio).text().trim(), 
+															  linhaCompromisso.getElementsByClass(horaFim).text().trim(),
+															  url+data,
+															  dateUtil.dateUsToBr(data));
 					
-					compromisso.setUrl(url+buildDateUrl());
+					compromisso.setUrl(url+data);
 					loadDataToCompromisso(compromisso);
 					
 					if(compromisso.getDescricao().contains(viagem)) {
@@ -76,8 +82,14 @@ public class AgendaScraper {
 		return lista;
 	}
 	
+	public List<Compromisso> scrapAgenda(){
+		List<Compromisso> lista = this.scrapAgenda(this.buildToDayDateUrl());
+		
+		return lista;
+	}
 	
-	private String buildDateUrl() {
+	
+	private String buildToDayDateUrl() {
 		LocalDate hoje = LocalDate.now();
 		
 		return hoje.getYear()+"-"+
@@ -97,4 +109,6 @@ public class AgendaScraper {
 		
 		compromisso.setTempoMinutos(between.toMinutes());
 	}
+	
+	
 }

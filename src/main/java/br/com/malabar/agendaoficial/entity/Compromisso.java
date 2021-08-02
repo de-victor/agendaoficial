@@ -12,6 +12,7 @@ public class Compromisso {
 	private String horaFim;
 	private Long tempoMinutos;
 	private TipoCompromissoEnum tipoCompromisso;
+	private String data;
 	
 	public Compromisso() {}
 	
@@ -20,12 +21,13 @@ public class Compromisso {
 		this.horaFim = horaFim;
 	}
 	
-	public Compromisso(String local, String descricao, String horaInicio, String horaFim, String url) {
+	public Compromisso(String local, String descricao, String horaInicio, String horaFim, String url, String data) {
 		this.horaInicio = horaInicio;
 		this.horaFim = horaFim;
 		this.local = local;
 		this.descricao = descricao;
 		this.url = url;
+		this.data = data;
 	}
 
 }
