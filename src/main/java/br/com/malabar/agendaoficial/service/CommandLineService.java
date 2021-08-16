@@ -9,24 +9,32 @@ import org.springframework.stereotype.Service;
 
 import br.com.malabar.agendaoficial.entity.Commands;
 import br.com.malabar.agendaoficial.entity.DiaOficial;
+import br.com.malabar.agendaoficial.exceptions.ComandoObrigatorioException;
+import br.com.malabar.agendaoficial.exceptions.DataFormatoErradoExcepion;
 import br.com.malabar.agendaoficial.exceptions.SemCompromissoException;
+import br.com.malabar.agendaoficial.validators.CommandValidator;
 import lombok.extern.java.Log;
 
 @Log
 @Service
 public class CommandLineService {
 	
-	@Autowired
 	private DiaOficialService diaOficialService;
+	private CompromissoCsvService compromissoCsvService;
+	private CommandValidator commandValidator;
 	
 	@Autowired
-	private CompromissoCsvService compromissoCsvService;
+	public CommandLineService(DiaOficialService diaOficialService, CompromissoCsvService compromissoCsvService, CommandValidator commandValidator) {
+		this.diaOficialService = diaOficialService;
+		this.compromissoCsvService = compromissoCsvService;
+		this.commandValidator = commandValidator;
+	}
 	
 	
 	private String dataInicial = "dataInicial";
 	private String dataFinal = "dataFinal";
 	
-	public void commandsProcessor(String[] args) throws InterruptedException, IOException {
+	public void commandsProcessor(String[] args) throws InterruptedException, IOException, ComandoObrigatorioException, DataFormatoErradoExcepion {
 		List<String> list = Arrays.asList(args);
 		if(list.isEmpty()) {
 			noCommandInput();
@@ -36,7 +44,7 @@ public class CommandLineService {
 		}
 	}
 	
-	private void execCommandInputs(List<String> list) throws InterruptedException, IOException {
+	private void execCommandInputs(List<String> list) throws InterruptedException, IOException, ComandoObrigatorioException, DataFormatoErradoExcepion {
 		Commands commands = loadCommandsInObj(list);
 		
 		if(commands.getDataInicial() != null && commands.getDataFinal() == null) {
@@ -49,7 +57,7 @@ public class CommandLineService {
 		
 	}
 	
-	private Commands loadCommandsInObj(List<String> list) {
+	private Commands loadCommandsInObj(List<String> list) throws ComandoObrigatorioException, DataFormatoErradoExcepion {
 		Commands commands = new Commands();
 		list.forEach(item -> {
 			if(item.contains(dataInicial)) {
@@ -62,10 +70,11 @@ public class CommandLineService {
 			}
 		});
 		
+		commandValidator.validator(commands);
+		
 		return commands;
 	}
-	
-	
+
 	private void noCommandInput() {
 		try {
 			DiaOficial diaOficial = diaOficialService.getDiaOficial();

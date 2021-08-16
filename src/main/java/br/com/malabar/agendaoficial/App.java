@@ -6,9 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import br.com.malabar.agendaoficial.service.CommandLineService;
+import lombok.extern.java.Log;
 
 
-
+@Log
 @SpringBootApplication
 public class App implements CommandLineRunner {
 	
@@ -21,8 +22,13 @@ public class App implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		try {
+			commandLineService.commandsProcessor(args);
+		}catch (Exception e) {
+			log.info(e.getMessage());
+			e.getStackTrace();
+		}
 		
-		commandLineService.commandsProcessor(args);
 		
 	}
 }
