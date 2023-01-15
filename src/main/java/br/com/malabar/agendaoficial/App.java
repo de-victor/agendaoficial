@@ -25,10 +25,8 @@ public class App implements CommandLineRunner {
 		try {
 			commandLineService.commandsProcessor(args);
 		}catch (Exception e) {
-			log.info(e.getMessage());
+			log.severe(e.getMessage());
 			e.getStackTrace();
 		}
-		
-		
 	}
 }

@@ -13,7 +13,6 @@ import br.com.malabar.agendaoficial.exceptions.SemCompromissoException;
 
 @Service
 public class DiaOficialService {
-	
 
 	private final CompromissoService compromissoService;
 
@@ -34,7 +33,11 @@ public class DiaOficialService {
 	}
 
 	public List<Compromisso> getDiaOficialCompromissos() throws SemCompromissoException {
-		return Optional.ofNullable(compromissoService.getCompromissos()).orElseThrow(SemCompromissoException::new);
+		List<Compromisso> compromissos = compromissoService.getCompromissos();
+		if(compromissos.isEmpty()){
+			throw new SemCompromissoException();
+		}
+		return compromissos;
 	}
 
 	@Deprecated
