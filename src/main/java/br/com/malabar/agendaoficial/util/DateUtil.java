@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 public class DateUtil {
 
 	public String dateToString(LocalDate hoje) {
-		
 		return hoje.getYear()+"-"+
 			   StringUtils.leftPad(hoje.getMonthValue()+"", 2, "0")+"-"+
 		       StringUtils.leftPad(hoje.getDayOfMonth()+"", 2, "0");
 	}
-	
+
+	@Deprecated
 	public String todayDateToString() {
 		LocalDate hoje = LocalDate.now();
 		

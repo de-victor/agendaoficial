@@ -1,11 +1,11 @@
 package br.com.malabar.agendaoficial.scraper;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.HttpStatusException;
@@ -14,6 +14,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import br.com.malabar.agendaoficial.agendaenum.TipoCompromissoEnum;
@@ -25,21 +26,27 @@ import lombok.extern.java.Log;
 @Component
 public class AgendaScraper {
 
-	private final String url = "https://www.gov.br/planalto/pt-br/acompanhe-o-planalto/agenda-do-presidente-da-republica-lula/agenda-do-presidente-da-republica/";
+	@Value("${agenda.scrapper.url}")
+	private String url;
+
 	private final String linha = "item-compromisso";
+
 	private final String compromissoTitulo = "compromisso-titulo";
+
 	private final String compromissoLocal = "compromisso-local";
+
 	private final String horaInicio = "compromisso-inicio";
+
 	private final String horaFim = "compromisso-fim";
+
 	private final String viagem = "Partida de";
 
-	private final String embarque = "Embarque";
-	
-	@Autowired
 	private DateUtil dateUtil;
-	
-	
-	
+
+	public AgendaScraper(DateUtil dateUtil) {
+		this.dateUtil = dateUtil;
+	}
+
 	public List<Compromisso> scrapAgenda(String data){
 		List<Compromisso> lista = new ArrayList();
 		
@@ -86,7 +93,14 @@ public class AgendaScraper {
 	}
 
 	public Boolean checkIfViagem(String line){
-		return line.contains(embarque) || line.contains(viagem);
+		AtomicReference<Boolean> retorno = new AtomicReference<>(false);
+		Arrays.asList("Embarque", "Desembarque").forEach(it ->{
+			if(line.contains(it)) {
+				retorno.set(Boolean.TRUE);
+			}
+		});
+
+		return retorno.get();
 	}
 	
 	public List<Compromisso> scrapAgenda() { return this.scrapAgenda(this.buildToDayDateUrl()); }

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import br.com.malabar.agendaoficial.entity.Compromisso;
@@ -18,16 +19,23 @@ import lombok.extern.java.Log;
 @Service
 @Log
 public class CompromissoCsvService {
-	
-	@Autowired
+
 	private AgendaScraper agendaScraper;
-	
-	@Autowired
+
 	private DateUtil dateUtil;
-	
-	private final String file = "agenda_oficial.csv";
-	private final Long sleepTime = new Long(2000);
+
+	@Value("${agenda.export.fileName}")
+	private String file;
+
+	@Value("${agenda.scrapper.sleep:2000}")
+	private Long sleepTime;
+
 	private final LocalDate today = LocalDate.now();
+
+	public CompromissoCsvService(AgendaScraper agendaScraper, DateUtil dateUtil) {
+		this.agendaScraper = agendaScraper;
+		this.dateUtil = dateUtil;
+	}
 	
 	public void agendaToCsv() throws IOException, InterruptedException {
 		
@@ -82,17 +90,19 @@ public class CompromissoCsvService {
 		
 		
 		BufferedWriter buffWrite = new BufferedWriter(new FileWriter(file, true));
-		
-		lista.forEach(item ->{
-			try {
-				buffWrite.append(objectToCsvLine(item) + "\n");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-		
-		buffWrite.close();
-		
+		try {
+			lista.forEach(item ->{
+				try {
+					buffWrite.append(objectToCsvLine(item) + "\n");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			buffWrite.close();
+		}
 	}
 	
 	private void csvHeader() throws IOException {
