@@ -19,29 +19,29 @@ import lombok.extern.java.Log;
 @Service
 public class CommandLineService {
 	
-	private DiaOficialService diaOficialService;
-	private CompromissoCsvService compromissoCsvService;
-	private CommandValidator commandValidator;
+	private final DiaOficialService diaOficialService;
+	private final CompromissoCsvService compromissoCsvService;
+	private final CommandValidator commandValidator;
+	private final String dataInicial = "dataInicial";
+	private final String dataFinal = "dataFinal";
 	
-	@Autowired
-	public CommandLineService(DiaOficialService diaOficialService, CompromissoCsvService compromissoCsvService, CommandValidator commandValidator) {
+
+	public CommandLineService(DiaOficialService diaOficialService,
+							  CompromissoCsvService compromissoCsvService,
+							  CommandValidator commandValidator) {
 		this.diaOficialService = diaOficialService;
 		this.compromissoCsvService = compromissoCsvService;
 		this.commandValidator = commandValidator;
 	}
-	
-	
-	private String dataInicial = "dataInicial";
-	private String dataFinal = "dataFinal";
-	
+
 	public void commandsProcessor(String[] args) throws InterruptedException, IOException, ComandoObrigatorioException, DataFormatoErradoExcepion {
-		List<String> list = Arrays.asList(args);
+		final List<String> list = Arrays.asList(args);
 		if(list.isEmpty()) {
 			noCommandInput();
+			return;
 		}
-		else {
-			execCommandInputs(list);
-		}
+		execCommandInputs(list);
+
 	}
 	
 	private void execCommandInputs(List<String> list) throws InterruptedException, IOException, ComandoObrigatorioException, DataFormatoErradoExcepion {
