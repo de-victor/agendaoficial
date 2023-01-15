@@ -61,11 +61,10 @@
 	        <resource>
 	            <directory>src/main/resources</directory>
 	            <includes>                      
-	                <include>**/*.properties</include>                  
-	            </includes>
+	                <include>**/*.properties</include>
+					<include>**/*.yml</include>
+				</includes>
 	        </resource>            
     	</resources>
 	</build>
-  
-  
 </project>
