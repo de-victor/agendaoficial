@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import br.com.malabar.agendaoficial.agendaenum.TipoCompromissoEnum;
+import br.com.malabar.agendaoficial.entity.Compromisso;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import br.com.malabar.agendaoficial.entity.Commands;
@@ -20,11 +23,16 @@ import lombok.extern.java.Log;
 public class CommandLineService {
 	
 	private final DiaOficialService diaOficialService;
+
 	private final CompromissoCsvService compromissoCsvService;
+
 	private final CommandValidator commandValidator;
-	private final String dataInicial = "dataInicial";
-	private final String dataFinal = "dataFinal";
-	
+
+	@Value("${agenda.comandos.dataInicial}")
+	private String dataInicial;
+
+	@Value("${agenda.comandos.dataFinal}")
+	private String dataFinal;
 
 	public CommandLineService(DiaOficialService diaOficialService,
 							  CompromissoCsvService compromissoCsvService,
@@ -37,7 +45,7 @@ public class CommandLineService {
 	public void commandsProcessor(String[] args) throws InterruptedException, IOException, ComandoObrigatorioException, DataFormatoErradoExcepion {
 		final List<String> list = Arrays.asList(args);
 		if(list.isEmpty()) {
-			noCommandInput();
+			noCommandInputReplyStatus();
 			return;
 		}
 		execCommandInputs(list);
@@ -54,7 +62,6 @@ public class CommandLineService {
 		if(commands.getDataInicial() != null && commands.getDataFinal() != null) {
 			compromissoCsvService.agendaToCsv(commands.getDataInicial(), commands.getDataFinal());
 		}
-		
 	}
 	
 	private Commands loadCommandsInObj(List<String> list) throws ComandoObrigatorioException, DataFormatoErradoExcepion {
@@ -75,6 +82,7 @@ public class CommandLineService {
 		return commands;
 	}
 
+	@Deprecated
 	private void noCommandInput() {
 		try {
 			DiaOficial diaOficial = diaOficialService.getDiaOficial();
@@ -84,6 +92,22 @@ public class CommandLineService {
 			
 		} catch (SemCompromissoException e) {
 			log.info(e.getMessage());
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private void noCommandInputReplyStatus(){
+		try {
+			List<Compromisso> compromissos = diaOficialService.getDiaOficialCompromissos();
+			long qtdCompromisso = compromissos.stream().filter(it -> it.getTipoCompromisso().equals(TipoCompromissoEnum.Compromisso)).count();
+			long qtdViagens = compromissos.stream().filter(it -> it.getTipoCompromisso().equals(TipoCompromissoEnum.Viagem)).count();
+
+			log.info("Quantidade de compromissos: "+ qtdCompromisso);
+			log.info("Quantidade de viagens(embarques + desembarques): "+ qtdViagens);
+
+		} catch (SemCompromissoException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
