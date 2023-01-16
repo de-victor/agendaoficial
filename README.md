@@ -1,15 +1,15 @@
 # Agenda oficial
 
-Webscrapper que retira dados do site [oficial da agenda presidencial](https://www.gov.br/planalto/pt-br/acompanhe-o-planalto/agenda-do-presidente-da-republica) calculando em minutos o tempo informado entre os compromissos.
+Webscrapper que retira dados do site [oficial da agenda presidencial](https://www.gov.br/planalto/pt-br/acompanhe-o-planalto/agenda-do-presidente-da-republica-lula/agenda-do-presidente-da-republica).
 
 ## Uso
 
-Execução sem parâmetros apenas irá informar as horas trabalhadas do dia atual
+Execução sem parâmetros apenas irá informar a quantidade de compromissos e viagens no dia.
 
 ## Parâmetros
 ### dataInicial=mm-aaaa
 
-Informe o mês e ano da data inicial a ser extraído. Informado apenas a data inicial será processado todos os dias do mês até a data inicial. No final do processo um arquivo CSV será criado.
+Informe o mês e ano da data inicial a ser extraído. Informado apenas a data inicial será processado todos os dias do mês até a data de hoje. No final do processo um arquivo CSV será criado.
 
 ### dataFinal=mm-aaaa
 
